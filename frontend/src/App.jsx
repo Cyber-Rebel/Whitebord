@@ -1,58 +1,74 @@
-import React, { useEffect, useRef,useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const App = () => {
   const canvasRef = useRef(null);
-  const [start,setstart] = useState(false);
-  const [points, setPoints] = useState([
-    { x: 30, y: 40 },
-    { x: 30, y: 140 }
-  ]);
-  
-  useEffect(() => {
-    const ctx = canvasRef.current.getContext("2d");
-    
-    
-    console.log("Canvas ref:", canvasRef.current.attributes);
-    points.forEach((p) => {
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-  ctx.fillStyle = "red";
-  ctx.fill();
-  ctx.closePath();
-});
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [eraseMode, setEraseMode] = useState(false);
 
-    
-  }, [points]);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
+  }, []);
+
+  const startDrawing = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const ctx = canvasRef.current.getContext("2d");
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (eraseMode) {
+      ctx.clearRect(x - 5, y - 5, 20, 20);
+      setIsDrawing(true);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      setIsDrawing(true);
+    }
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const ctx = canvasRef.current.getContext("2d");
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (eraseMode) {
+      ctx.clearRect(x - 10, y - 10, 30, 30);
+    } else {
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-200">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-200 gap-4">
       <canvas
-// 
-onClick={(e)=>{
-  setstart(!start);
-  
-  console.log(e.clientX)
-  console.log(canvasRef.current.getBoundingClientRect().left)
-  console.log( e.clientX - canvasRef.current.getBoundingClientRect().left)
-}}
-
-onMouseMove={(e)=>{
-  start ?
-  setPoints([...points, { x: e.clientX - canvasRef.current.getBoundingClientRect().left, y: e.clientY - canvasRef.current.getBoundingClientRect().top }]):null
-}}
         ref={canvasRef}
         width={900}
         height={700}
-        className="border border-gray-700"
+        className="border border-gray-700 bg-white"
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
       ></canvas>
+
+      <button
+        onClick={() => setEraseMode(!eraseMode)}
+        className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+      >
+        {eraseMode ? "Switch to Draw" : "Switch to Eraser"}
+      </button>
     </div>
   );
 };
 
 export default App;
-// getBoundingClientRect() se canvas ka exact position milta hai, jisse click coordinates ko accurately map kiya ja sakta hai.
-  // console.log(canvasRef.current.getBoundingClientRect().left)
-  // console.log(canvasRef.current.getBoundingClientRect().x)
-  // console.log(canvasRef.current.getBoundingClientRect().top)
-  // console.log(canvasRef.current.getBoundingClientRect().y)
-// getContext("2d") se canvas par drawing ke liye 2D context milta hai.
