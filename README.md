@@ -90,4 +90,57 @@ const y = event.clientY - rect.top;
 
 ---
 
-GetBoundingClientReact me 
+
+---
+
+### 🔹 Line:
+
+```js
+const clicked = shapes.find(
+  (shape) =>
+    Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2) <= shape.radius
+);
+```
+
+---
+
+### 🔹 Meaning:
+
+1. **`x, y`** — mouse click ke coordinates hain (canvas ke andar).
+
+2. **`shape.x, shape.y`** — circle ka center point hai.
+
+3. **`Math.sqrt((x - shape.x) ** 2 + (y - shape.y) ** 2)`**
+
+   * Yeh **distance formula** hai (Pythagoras theorem).
+   * Ye batata hai: click point center se kitna door hai.
+
+4. **`<= shape.radius`**
+
+   * Agar yeh distance **circle ke radius se chhota ya barabar** hai → matlab click **circle ke andar** hua hai.
+
+---
+
+### 🔹 So:
+
+* Agar click circle ke andar hua, to condition `true` return karegi.
+* `Array.find()` first matching shape ko return karega.
+* Agar koi circle match nahi hua → `clicked` undefined rahega.
+
+---
+
+### 🔹 Example:
+
+Circle ka center `(210, 210)`
+Radius = `50`
+
+Click `(220, 220)` par hua
+→ Distance = √((220-210)² + (220-210)²) = √(100 + 100) = 14.14
+→ 14.14 ≤ 50 → **click circle ke andar**
+
+Isliye `clicked` variable me wo shape mil jata hai.
+
+---
+
+Simple words me:
+**Ye line detect karti hai ki user ne kis circle ke andar double-click kiya.**
